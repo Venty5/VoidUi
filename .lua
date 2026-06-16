@@ -19,10 +19,76 @@ local Library = {
 			Divider = Color3.fromRGB(40, 40, 45),
 			Text = Color3.fromRGB(240, 240, 245),
 			TextDark = Color3.fromRGB(160, 160, 165),
-			MainTransparency = 0.1,
-			SecondTransparency = 0.15,
-			FrameTransparency = 0.2
-		}
+			MainTransparency = 1,
+			SecondTransparency = 1,
+			FrameTransparency = 1
+		},
+		Black = {
+			Main = Color3.fromRGB(10, 10, 12),
+			Second = Color3.fromRGB(18, 18, 20),
+			Stroke = Color3.fromRGB(45, 45, 50),
+			Divider = Color3.fromRGB(28, 28, 32),
+			Text = Color3.fromRGB(240, 240, 245),
+			TextDark = Color3.fromRGB(140, 140, 145),
+			MainTransparency = 1,
+			SecondTransparency = 1,
+			FrameTransparency = 1
+		},
+		White = {
+			Main = Color3.fromRGB(230, 230, 235),
+			Second = Color3.fromRGB(215, 215, 220),
+			Stroke = Color3.fromRGB(180, 180, 185),
+			Divider = Color3.fromRGB(195, 195, 200),
+			Text = Color3.fromRGB(20, 20, 25),
+			TextDark = Color3.fromRGB(80, 80, 85),
+			MainTransparency = 1,
+			SecondTransparency = 1,
+			FrameTransparency = 1
+		},
+		Gray = {
+			Main = Color3.fromRGB(55, 55, 60),
+			Second = Color3.fromRGB(70, 70, 75),
+			Stroke = Color3.fromRGB(100, 100, 105),
+			Divider = Color3.fromRGB(85, 85, 90),
+			Text = Color3.fromRGB(235, 235, 240),
+			TextDark = Color3.fromRGB(170, 170, 175),
+			MainTransparency = 1,
+			SecondTransparency = 1,
+			FrameTransparency = 1
+		},
+		Blue = {
+			Main = Color3.fromRGB(10, 20, 45),
+			Second = Color3.fromRGB(15, 30, 65),
+			Stroke = Color3.fromRGB(40, 70, 130),
+			Divider = Color3.fromRGB(25, 50, 95),
+			Text = Color3.fromRGB(200, 220, 255),
+			TextDark = Color3.fromRGB(110, 150, 210),
+			MainTransparency = 1,
+			SecondTransparency = 1,
+			FrameTransparency = 1
+		},
+		Purple = {
+			Main = Color3.fromRGB(25, 10, 45),
+			Second = Color3.fromRGB(38, 15, 65),
+			Stroke = Color3.fromRGB(90, 40, 150),
+			Divider = Color3.fromRGB(60, 25, 100),
+			Text = Color3.fromRGB(220, 200, 255),
+			TextDark = Color3.fromRGB(155, 120, 210),
+			MainTransparency = 1,
+			SecondTransparency = 1,
+			FrameTransparency = 1
+		},
+		Red = {
+			Main = Color3.fromRGB(35, 8, 8),
+			Second = Color3.fromRGB(55, 12, 12),
+			Stroke = Color3.fromRGB(130, 35, 35),
+			Divider = Color3.fromRGB(85, 20, 20),
+			Text = Color3.fromRGB(255, 210, 210),
+			TextDark = Color3.fromRGB(200, 120, 120),
+			MainTransparency = 1,
+			SecondTransparency = 1,
+			FrameTransparency = 1
+		},
 	},
 	SelectedTheme = "Default",
 	Font = Enum.Font.Gotham,
@@ -46,8 +112,12 @@ function Library:LoadConfig()
 		end)
 		if success and data then
 			self.UserConfig = data
+			-- Load saved theme
+			if data.__theme and self.Themes[data.__theme] then
+				self.SelectedTheme = data.__theme
+			end
 			for flag, value in pairs(self.UserConfig) do
-				if self.Flags[flag] then
+				if flag ~= "__theme" and self.Flags[flag] then
 					if self.Flags[flag].Type == "Colorpicker" then
 						self.Flags[flag]:Set(UnpackColor(value))
 					else
@@ -62,6 +132,7 @@ end
 function Library:SaveConfig()
 	if not self.ConfigFile or not writefile then return end
 	pcall(function()
+		self.UserConfig.__theme = self.SelectedTheme
 		writefile(self.ConfigFile, HttpService:JSONEncode(self.UserConfig))
 	end)
 end
@@ -419,8 +490,8 @@ function Library:MakeWindow(WindowConfig)
 	end)
 
 	local CloseBtn = SetChildren(SetProps(MakeElement("Button"), {
-		Size = UDim2.new(0.5, 0, 1, 0),
-		Position = UDim2.new(0.5, 0, 0, 0),
+		Size = UDim2.new(0.333, 0, 1, 0),
+		Position = UDim2.new(0.667, 0, 0, 0),
 		BackgroundTransparency = 1
 	}), {
 		AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://7072725342"), {
@@ -430,13 +501,30 @@ function Library:MakeWindow(WindowConfig)
 	})
 
 	local MinimizeBtn = SetChildren(SetProps(MakeElement("Button"), {
-		Size = UDim2.new(0.5, 0, 1, 0),
+		Size = UDim2.new(0.333, 0, 1, 0),
 		Position = UDim2.new(0, 0, 0, 0),
 		BackgroundTransparency = 1
 	}), {
 		AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://7072719338"), {
 			Position = UDim2.new(0, 9, 0, 6),
 			Size = UDim2.new(0, 18, 0, 18),
+			Name = "Ico"
+		}), "Text")
+	})
+
+	-- Theme Dropdown Button (arrow down icon, middle button)
+	local ThemeDropdownOpen = false
+	local ThemeDropdownFrame = nil
+
+	local ThemeBtn = SetChildren(SetProps(MakeElement("Button"), {
+		Size = UDim2.new(0.334, 0, 1, 0),
+		Position = UDim2.new(0.333, 0, 0, 0),
+		BackgroundTransparency = 1
+	}), {
+		AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://7072706796"), {
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.new(0.5, 0, 0.5, 0),
+			Size = UDim2.new(0, 16, 0, 16),
 			Name = "Ico"
 		}), "Text")
 	})
@@ -499,30 +587,188 @@ function Library:MakeWindow(WindowConfig)
 		Position = UDim2.new(0,0,1,-1)
 	}), "Stroke")
 
+	-- TopBar button container: now 3 buttons wide
+	local TopBarButtonContainer = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255,255,255), 0, 7), {
+		Size = UDim2.new(0, 105, 0, 30),
+		Position = UDim2.new(1, -120, 0, 10),
+		BackgroundTransparency = 0.15
+	}), {
+		AddThemeObject(MakeElement("Stroke"), "Stroke"),
+		-- divider between minimize and theme
+		AddThemeObject(SetProps(MakeElement("Frame"), {Size = UDim2.new(0,1,1,0), Position = UDim2.new(0.333,0,0,0)}), "Stroke"),
+		-- divider between theme and close
+		AddThemeObject(SetProps(MakeElement("Frame"), {Size = UDim2.new(0,1,1,0), Position = UDim2.new(0.667,0,0,0)}), "Stroke"),
+		MinimizeBtn,
+		ThemeBtn,
+		CloseBtn
+	}), "Second")
+
 	local MainWindow = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255,255,255), 0, 10), {
 		Parent = Container,
 		Position = UDim2.new(0.5,-307,0.5,-172),
 		Size = UDim2.new(0,615,0,344),
 		ClipsDescendants = true,
-		BackgroundTransparency = 0.1
+		BackgroundTransparency = 1
 	}), {
 		SetChildren(SetProps(MakeElement("TFrame"), {Size = UDim2.new(1,0,0,50), Name = "TopBar"}), {
 			WindowName,
 			WindowTopBarLine,
-			AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255,255,255), 0, 7), {
-				Size = UDim2.new(0,70,0,30),
-				Position = UDim2.new(1,-85,0,10),
-				BackgroundTransparency = 0.15
-			}), {
-				AddThemeObject(MakeElement("Stroke"), "Stroke"),
-				AddThemeObject(SetProps(MakeElement("Frame"), {Size = UDim2.new(0,1,1,0), Position = UDim2.new(0.5,0,0,0)}), "Stroke"),
-				MinimizeBtn,
-				CloseBtn
-			}), "Second"),
+			TopBarButtonContainer,
 		}),
 		DragPoint,
 		WindowStuff
 	}), "Main")
+
+	-- Theme dropdown popup (parented to Container so it floats above everything)
+	local ThemeNames = {"Black", "White", "Gray", "Blue", "Purple", "Red"}
+	local ThemeDisplayNames = {"Black", "White", "Gray", "Blue", "Purple", "Red"}
+
+	local ThemePopup = Create("Frame", {
+		BackgroundColor3 = Library.Themes[Library.SelectedTheme].Second,
+		BackgroundTransparency = 0.05,
+		BorderSizePixel = 0,
+		Size = UDim2.new(0, 120, 0, #ThemeNames * 28 + 8),
+		Visible = false,
+		ZIndex = 50,
+		Parent = Container,
+	})
+	Create("UICorner", {CornerRadius = UDim.new(0, 8), Parent = ThemePopup})
+	Create("UIStroke", {Color = Library.Themes[Library.SelectedTheme].Stroke, Thickness = 1, Parent = ThemePopup})
+	local ThemePopupList = Create("UIListLayout", {
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Padding = UDim.new(0, 2),
+		Parent = ThemePopup
+	})
+	Create("UIPadding", {
+		PaddingTop = UDim.new(0,4), PaddingBottom = UDim.new(0,4),
+		PaddingLeft = UDim.new(0,4), PaddingRight = UDim.new(0,4),
+		Parent = ThemePopup
+	})
+
+	local ThemeButtonRefs = {}
+	for i, tName in ipairs(ThemeNames) do
+		local displayName = ThemeDisplayNames[i]
+		local optBtn = Create("TextButton", {
+			Size = UDim2.new(1, 0, 0, 26),
+			BackgroundTransparency = (Library.SelectedTheme == tName) and 0.5 or 1,
+			BackgroundColor3 = Library.Themes[Library.SelectedTheme].Stroke,
+			BorderSizePixel = 0,
+			Text = displayName,
+			TextColor3 = Library.Themes[Library.SelectedTheme].Text,
+			TextSize = 13,
+			Font = Enum.Font.FredokaOne,
+			ZIndex = 51,
+			Parent = ThemePopup,
+		})
+		Create("UICorner", {CornerRadius = UDim.new(0, 5), Parent = optBtn})
+		ThemeButtonRefs[tName] = optBtn
+
+		optBtn.MouseEnter:Connect(function()
+			if Library.SelectedTheme ~= tName then
+				TweenService:Create(optBtn, TweenInfo.new(0.15), {BackgroundTransparency = 0.7}):Play()
+			end
+		end)
+		optBtn.MouseLeave:Connect(function()
+			if Library.SelectedTheme ~= tName then
+				TweenService:Create(optBtn, TweenInfo.new(0.15), {BackgroundTransparency = 1}):Play()
+			end
+		end)
+		optBtn.MouseButton1Click:Connect(function()
+			-- play click sound
+			local sound = Instance.new("Sound")
+			sound.SoundId = "rbxassetid://6895079853"
+			sound.Volume = 0.5
+			sound.Parent = game:GetService("SoundService")
+			sound:Play()
+			game:GetService("Debris"):AddItem(sound, 1)
+
+			Library.SelectedTheme = tName
+			SetTheme()
+
+			-- Update popup styling
+			ThemePopup.BackgroundColor3 = Library.Themes[tName].Second
+			local popupStroke = ThemePopup:FindFirstChildOfClass("UIStroke")
+			if popupStroke then popupStroke.Color = Library.Themes[tName].Stroke end
+
+			for k, btn in pairs(ThemeButtonRefs) do
+				btn.TextColor3 = Library.Themes[tName].Text
+				btn.BackgroundColor3 = Library.Themes[tName].Stroke
+				TweenService:Create(btn, TweenInfo.new(0.15), {
+					BackgroundTransparency = (k == tName) and 0.5 or 1
+				}):Play()
+			end
+
+			-- Auto-save theme
+			if WindowConfig.SaveConfig and Library.ConfigFile then
+				Library.UserConfig.__theme = tName
+				Library:SaveConfig()
+			end
+
+			-- Close popup
+			ThemeDropdownOpen = false
+			TweenService:Create(ThemePopup, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				BackgroundTransparency = 1
+			}):Play()
+			wait(0.15)
+			ThemePopup.Visible = false
+			ThemePopup.BackgroundTransparency = 0.05
+
+			Library:MakeNotification({
+				Name = "Theme geändert",
+				Content = "Theme wurde auf " .. displayName .. " gesetzt.",
+				Time = 3
+			})
+		end)
+	end
+
+	local function RepositionThemePopup()
+		local btnPos = TopBarButtonContainer.AbsolutePosition
+		local btnSize = TopBarButtonContainer.AbsoluteSize
+		ThemePopup.Position = UDim2.new(0, btnPos.X + btnSize.X - 120, 0, btnPos.Y + btnSize.Y + 4)
+	end
+
+	AddConnection(ThemeBtn.MouseButton1Click, function()
+		ThemeDropdownOpen = not ThemeDropdownOpen
+		if ThemeDropdownOpen then
+			RepositionThemePopup()
+			ThemePopup.Visible = true
+			ThemePopup.BackgroundTransparency = 1
+			TweenService:Create(ThemePopup, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				BackgroundTransparency = 0.05
+			}):Play()
+			TweenService:Create(ThemeBtn.Ico, TweenInfo.new(0.2), {Rotation = 180}):Play()
+		else
+			TweenService:Create(ThemePopup, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				BackgroundTransparency = 1
+			}):Play()
+			TweenService:Create(ThemeBtn.Ico, TweenInfo.new(0.2), {Rotation = 0}):Play()
+			wait(0.15)
+			ThemePopup.Visible = false
+			ThemePopup.BackgroundTransparency = 0.05
+		end
+	end)
+
+	-- Close popup when clicking elsewhere
+	AddConnection(UserInputService.InputBegan, function(Input)
+		if Input.UserInputType == Enum.UserInputType.MouseButton1 and ThemeDropdownOpen then
+			local mx, my = Mouse.X, Mouse.Y
+			local pp = ThemePopup.AbsolutePosition
+			local ps = ThemePopup.AbsoluteSize
+			local insidePopup = mx >= pp.X and mx <= pp.X+ps.X and my >= pp.Y and my <= pp.Y+ps.Y
+			local bp = TopBarButtonContainer.AbsolutePosition
+			local bs = TopBarButtonContainer.AbsoluteSize
+			local insideBtn = mx >= bp.X and mx <= bp.X+bs.X and my >= bp.Y and my <= bp.Y+bs.Y
+			if not insidePopup and not insideBtn then
+				ThemeDropdownOpen = false
+				TweenService:Create(ThemePopup, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
+				TweenService:Create(ThemeBtn.Ico, TweenInfo.new(0.2), {Rotation = 0}):Play()
+				task.delay(0.15, function()
+					ThemePopup.Visible = false
+					ThemePopup.BackgroundTransparency = 0.05
+				end)
+			end
+		end
+	end)
 
 	local SetResizingCallback = MakeDraggable(DragPoint, MainWindow)
 
@@ -544,6 +790,8 @@ function Library:MakeWindow(WindowConfig)
 
 	AddConnection(CloseBtn.MouseButton1Up, function()
 		MainWindow.Visible = false
+		ThemePopup.Visible = false
+		ThemeDropdownOpen = false
 		if UserInputService.TouchEnabled then MobileReopenButton.Visible = true end
 		UIHidden = true
 		Library:MakeNotification({
@@ -578,7 +826,7 @@ function Library:MakeWindow(WindowConfig)
 			MainWindow.ClipsDescendants = true
 			WindowTopBarLine.Visible = false
 			MinimizeBtn.Ico.Image = "rbxassetid://7072720870"
-			TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, WindowName.TextBounds.X + 140, 0, 50)}):Play()
+			TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, WindowName.TextBounds.X + 175, 0, 50)}):Play()
 			wait(0.1)
 			WindowStuff.Visible = false
 		end
@@ -1718,12 +1966,10 @@ function Library:MakeWindow(WindowConfig)
 	function TabFunction:TabSection(Name)
 		Name = Name or "Section"
 
-		local headerBtn = Create("TextButton", {
+		local headerBtn = Create("Frame", {  -- Changed from TextButton to Frame (not clickable)
 			Size             = UDim2.new(1, 0, 0, 24),
 			BackgroundTransparency = 1,
 			BorderSizePixel  = 0,
-			Text             = "",
-			AutoButtonColor  = false,
 			LayoutOrder      = NextOrder(),
 			Parent           = TabHolder,
 		})
@@ -1749,43 +1995,15 @@ function Library:MakeWindow(WindowConfig)
 			Parent             = headerBtn,
 		})
 
-		local collapsed  = false
-		local tabFrames  = {}
+		-- No collapse logic; tabs always visible
+		local tabFrames = {}
 
 		local groupData = {
 			header    = headerBtn,
 			frames    = tabFrames,
-			collapsed = collapsed,
+			collapsed = false,  -- always false, never collapses
 		}
 		table.insert(allGroups, groupData)
-
-		headerBtn.MouseButton1Click:Connect(function()
-			collapsed = not collapsed
-			groupData.collapsed = collapsed
-			for _, tf in ipairs(tabFrames) do
-				tf.Visible = not collapsed
-			end
-			TweenService:Create(accentLine, TweenInfo.new(0.2), {
-				BackgroundColor3 = collapsed
-					and Color3.fromRGB(80, 80, 85)
-					or  Color3.fromRGB(150, 150, 165)
-			}):Play()
-			TweenService:Create(sectionLabel, TweenInfo.new(0.2), {
-				TextColor3 = collapsed
-					and Color3.fromRGB(100, 100, 105)
-					or  Color3.fromRGB(150, 150, 165)
-			}):Play()
-		end)
-		headerBtn.MouseEnter:Connect(function()
-			TweenService:Create(sectionLabel, TweenInfo.new(0.15), {TextColor3 = Color3.fromRGB(200, 200, 210)}):Play()
-		end)
-		headerBtn.MouseLeave:Connect(function()
-			TweenService:Create(sectionLabel, TweenInfo.new(0.15), {
-				TextColor3 = collapsed
-					and Color3.fromRGB(100, 100, 105)
-					or  Color3.fromRGB(150, 150, 165)
-			}):Play()
-		end)
 
 		currentTabSection = groupData
 	end
@@ -1799,7 +2017,7 @@ function Library:MakeWindow(WindowConfig)
 			if currentTabSection then
 				table.insert(currentTabSection.frames, frame)
 				tabGroupRegistry[frame] = currentTabSection
-				frame.Visible = not currentTabSection.collapsed
+				frame.Visible = true  -- always visible, no collapse
 			end
 		end
 		return ef
