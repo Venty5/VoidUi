@@ -19,9 +19,9 @@ local Library = {
 			Divider = Color3.fromRGB(40, 40, 45),
 			Text = Color3.fromRGB(240, 240, 245),
 			TextDark = Color3.fromRGB(160, 160, 165),
-			MainTransparency = 1,
-			SecondTransparency = 1,
-			FrameTransparency = 1
+			MainTransparency = 0,
+			SecondTransparency = 0,
+			FrameTransparency = 0
 		},
 		Black = {
 			Main = Color3.fromRGB(10, 10, 12),
@@ -30,9 +30,9 @@ local Library = {
 			Divider = Color3.fromRGB(28, 28, 32),
 			Text = Color3.fromRGB(240, 240, 245),
 			TextDark = Color3.fromRGB(140, 140, 145),
-			MainTransparency = 1,
-			SecondTransparency = 1,
-			FrameTransparency = 1
+			MainTransparency = 0,
+			SecondTransparency = 0,
+			FrameTransparency = 0
 		},
 		White = {
 			Main = Color3.fromRGB(230, 230, 235),
@@ -41,9 +41,9 @@ local Library = {
 			Divider = Color3.fromRGB(195, 195, 200),
 			Text = Color3.fromRGB(20, 20, 25),
 			TextDark = Color3.fromRGB(80, 80, 85),
-			MainTransparency = 1,
-			SecondTransparency = 1,
-			FrameTransparency = 1
+			MainTransparency = 0,
+			SecondTransparency = 0,
+			FrameTransparency = 0
 		},
 		Gray = {
 			Main = Color3.fromRGB(55, 55, 60),
@@ -52,9 +52,9 @@ local Library = {
 			Divider = Color3.fromRGB(85, 85, 90),
 			Text = Color3.fromRGB(235, 235, 240),
 			TextDark = Color3.fromRGB(170, 170, 175),
-			MainTransparency = 1,
-			SecondTransparency = 1,
-			FrameTransparency = 1
+			MainTransparency = 0,
+			SecondTransparency = 0,
+			FrameTransparency = 0
 		},
 		Blue = {
 			Main = Color3.fromRGB(10, 20, 45),
@@ -63,9 +63,9 @@ local Library = {
 			Divider = Color3.fromRGB(25, 50, 95),
 			Text = Color3.fromRGB(200, 220, 255),
 			TextDark = Color3.fromRGB(110, 150, 210),
-			MainTransparency = 1,
-			SecondTransparency = 1,
-			FrameTransparency = 1
+			MainTransparency = 0,
+			SecondTransparency = 0,
+			FrameTransparency = 0
 		},
 		Purple = {
 			Main = Color3.fromRGB(25, 10, 45),
@@ -74,9 +74,9 @@ local Library = {
 			Divider = Color3.fromRGB(60, 25, 100),
 			Text = Color3.fromRGB(220, 200, 255),
 			TextDark = Color3.fromRGB(155, 120, 210),
-			MainTransparency = 1,
-			SecondTransparency = 1,
-			FrameTransparency = 1
+			MainTransparency = 0,
+			SecondTransparency = 0,
+			FrameTransparency = 0
 		},
 		Red = {
 			Main = Color3.fromRGB(35, 8, 8),
@@ -85,9 +85,9 @@ local Library = {
 			Divider = Color3.fromRGB(85, 20, 20),
 			Text = Color3.fromRGB(255, 210, 210),
 			TextDark = Color3.fromRGB(200, 120, 120),
-			MainTransparency = 1,
-			SecondTransparency = 1,
-			FrameTransparency = 1
+			MainTransparency = 0,
+			SecondTransparency = 0,
+			FrameTransparency = 0
 		},
 	},
 	SelectedTheme = "Default",
@@ -608,7 +608,7 @@ function Library:MakeWindow(WindowConfig)
 		Position = UDim2.new(0.5,-307,0.5,-172),
 		Size = UDim2.new(0,615,0,344),
 		ClipsDescendants = true,
-		BackgroundTransparency = 1
+		BackgroundTransparency = 0.1
 	}), {
 		SetChildren(SetProps(MakeElement("TFrame"), {Size = UDim2.new(1,0,0,50), Name = "TopBar"}), {
 			WindowName,
@@ -625,7 +625,7 @@ function Library:MakeWindow(WindowConfig)
 
 	local ThemePopup = Create("Frame", {
 		BackgroundColor3 = Library.Themes[Library.SelectedTheme].Second,
-		BackgroundTransparency = 0.05,
+		BackgroundTransparency = 0,
 		BorderSizePixel = 0,
 		Size = UDim2.new(0, 120, 0, #ThemeNames * 28 + 8),
 		Visible = false,
